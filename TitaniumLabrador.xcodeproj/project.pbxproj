@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FD3B848E255DB00900BD15AD /* TLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD3B848D255DB00900BD15AD /* TLView.swift */; };
 		FD91D586255DA9FA00B936F9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD91D585255DA9FA00B936F9 /* AppDelegate.swift */; };
 		FD91D588255DA9FA00B936F9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD91D587255DA9FA00B936F9 /* SceneDelegate.swift */; };
 		FD91D58A255DA9FA00B936F9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD91D589255DA9FA00B936F9 /* ViewController.swift */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		FD3B848B255DAB2700BD15AD /* TitaniumLabrador.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TitaniumLabrador.entitlements; sourceTree = "<group>"; };
+		FD3B848D255DB00900BD15AD /* TLView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLView.swift; sourceTree = "<group>"; };
 		FD91D582255DA9FA00B936F9 /* TitaniumLabrador.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TitaniumLabrador.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD91D585255DA9FA00B936F9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FD91D587255DA9FA00B936F9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				FD91D585255DA9FA00B936F9 /* AppDelegate.swift */,
 				FD91D587255DA9FA00B936F9 /* SceneDelegate.swift */,
 				FD91D589255DA9FA00B936F9 /* ViewController.swift */,
+				FD3B848D255DB00900BD15AD /* TLView.swift */,
 				FD91D58B255DA9FA00B936F9 /* Main.storyboard */,
 				FD91D58E255DA9FA00B936F9 /* Assets.xcassets */,
 				FD91D590255DA9FA00B936F9 /* LaunchScreen.storyboard */,
@@ -141,6 +144,7 @@
 			files = (
 				FD91D58A255DA9FA00B936F9 /* ViewController.swift in Sources */,
 				FD91D586255DA9FA00B936F9 /* AppDelegate.swift in Sources */,
+				FD3B848E255DB00900BD15AD /* TLView.swift in Sources */,
 				FD91D588255DA9FA00B936F9 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
