@@ -16,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FD3B848B255DAB2700BD15AD /* TitaniumLabrador.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TitaniumLabrador.entitlements; sourceTree = "<group>"; };
 		FD91D582255DA9FA00B936F9 /* TitaniumLabrador.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TitaniumLabrador.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD91D585255DA9FA00B936F9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FD91D587255DA9FA00B936F9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 		FD91D584255DA9FA00B936F9 /* TitaniumLabrador */ = {
 			isa = PBXGroup;
 			children = (
+				FD3B848B255DAB2700BD15AD /* TitaniumLabrador.entitlements */,
 				FD91D585255DA9FA00B936F9 /* AppDelegate.swift */,
 				FD91D587255DA9FA00B936F9 /* SceneDelegate.swift */,
 				FD91D589255DA9FA00B936F9 /* ViewController.swift */,
@@ -286,6 +288,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TitaniumLabrador/TitaniumLabrador.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZP9ZJ4EF3S;
 				INFOPLIST_FILE = TitaniumLabrador/Info.plist;
@@ -295,6 +298,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GingerLabs.TitaniumLabrador;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -305,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TitaniumLabrador/TitaniumLabrador.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZP9ZJ4EF3S;
 				INFOPLIST_FILE = TitaniumLabrador/Info.plist;
@@ -314,6 +319,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GingerLabs.TitaniumLabrador;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
