@@ -1,54 +1,55 @@
 //
-//  TLView.swift
+//  ViewDelegate.swift
 //  TitaniumLabrador
 //
 //  Created by Holmes Futrell on 11/12/20.
 //
 
-import Foundation
 import MetalKit
 
-class TLView: MTKView {
-    required init(coder: NSCoder) {
-        super.init(coder: coder)
-        self.isPaused = true
-        self.enableSetNeedsDisplay = true
-        self.contentMode = .redraw
-        
-        let device = MTLCreateSystemDefaultDevice()
-        self.device = device
+let programSource = """
+
+    struct VertexOutput {
+        float4 position [[position]];
+        float4 color;
+    };
+
+    vertex VertexOutput hello_vertex(
+                        const device float4 *pos_data [[ buffer(0) ]],
+                        const device float4 *color_data [[ buffer(1) ]],
+                        unsigned int v_id [[vertex_id]])
+    {
+        VertexOutput vOut;
+        vOut.position = pos_data[v_id];
+        vOut.color = color_data[v_id];
+        return vOut;
     }
-    
-    static let programSource = """
 
-        struct VertexOutput {
-            float4 position [[position]];
-            float4 color;
-        };
+    fragment float4 hello_fragment(VertexOutput in [[stage_in]]) {
+        return in.color;
+    }
+"""
 
-        vertex VertexOutput hello_vertex(
-                            const device float4 *pos_data [[ buffer(0) ]],
-                            const device float4 *color_data [[ buffer(1) ]],
-                            unsigned int v_id [[vertex_id]])
-        {
-            VertexOutput vOut;
-            vOut.position = pos_data[v_id];
-            vOut.color = color_data[v_id];
-            return vOut;
-        }
+class DrawDelegate: NSObject {
     
-        fragment float4 hello_fragment(VertexOutput in [[stage_in]]) {
-            return in.color;
-        }
-    """
+}
+
+extension DrawDelegate: CoreGraphicsViewDelegate {
+    func draw(_ rect: CGRect) {
+        let context = UIGraphicsGetCurrentContext()
+        context?.setFillColor(UIColor(red: 1, green: 1, blue: 1, alpha: 0.9).cgColor)
+        context?.fill(rect)
+    }
+}
+
+extension DrawDelegate: MTKViewDelegate {
     
-    override func draw(_ rect: CGRect) {
-                
-        guard let renderPassDescriptor = self.currentRenderPassDescriptor else {
+    func draw(in view: MTKView) {
+        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
             assertionFailure("could not get render pass descriptor")
             return
         }
-        guard let device = self.device else {
+        guard let device = view.device else {
             assertionFailure("no metal device set for rendering")
             return
         }
@@ -94,7 +95,7 @@ class TLView: MTKView {
          
         let library: MTLLibrary
         do {
-            library = try device.makeLibrary(source: TLView.programSource, options: nil)
+            library = try device.makeLibrary(source: programSource, options: nil)
         } catch let error as NSError {
             assertionFailure("library creation failed with error \(error)")
             return
@@ -109,7 +110,7 @@ class TLView: MTKView {
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         renderPipelineDescriptor.vertexFunction = vertexFunction
         renderPipelineDescriptor.fragmentFunction = fragmentFunction
-        renderPipelineDescriptor.colorAttachments[0].pixelFormat = self.colorPixelFormat
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
 
         let renderPipelineState: MTLRenderPipelineState
             
@@ -124,11 +125,17 @@ class TLView: MTKView {
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         renderEncoder.endEncoding()
         
-        guard let currentDrawable = self.currentDrawable else {
+        guard let currentDrawable = view.currentDrawable else {
             assertionFailure("could nto get drawable")
             return
         }
         commandBuffer.present(currentDrawable)
         commandBuffer.commit()
+
     }
+    
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+
+    }
+
 }
