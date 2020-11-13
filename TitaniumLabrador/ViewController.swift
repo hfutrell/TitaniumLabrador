@@ -8,14 +8,14 @@
 import MetalKit
 import UIKit
 
-protocol CoreGraphicsViewDelegate: AnyObject {
-    func draw(_ rect: CGRect)
-}
-
 class CoreGraphicsView: UIView {
-    weak var delegate: CoreGraphicsViewDelegate?
+    weak var delegate: DrawDelegate?
     override func draw(_ rect: CGRect) {
-        self.delegate?.draw(rect)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            assertionFailure("could not get context")
+            return
+        }
+        self.delegate?.draw(in: context)
     }
 }
 
