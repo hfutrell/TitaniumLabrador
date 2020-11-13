@@ -31,7 +31,7 @@ let programSource = """
         float3x2 mat = matrix[instance_id];
         float2 result = (float2x2(mat[0], mat[1]) * pos_data[v_id].xy) + mat[2];
         vOut.position = float4(result.x, result.y, 0, 1);
-        vOut.color = color_data[v_id];
+        vOut.color = color_data[instance_id];
         return vOut;
     }
 
@@ -142,12 +142,8 @@ class TLMetalContext {
         }
 
         let posData: [Float] = points.formattedForMetal
-        
-        let colData: [Float] = [
-            1.0, 0.0, 0.0, 1.0,
-            0.0, 1.0, 0.0, 1.0,
-            0.0, 0.0, 1.0, 1.0,
-        ]
+                
+        let colData = self.instances.flatMap { $0.fillColor }
                         
         let matrixData: [Float] = self.instances.flatMap {
             $0.transform.formattedForMetal
@@ -198,12 +194,16 @@ class TLMetalContext {
 
 extension TLMetalContext: TLContext {
     
-    func drawDebugTriangle() {
+    private var viewTransform: CGAffineTransform {
         guard let view = self.view else {
             assertionFailure("view is not set to get view transform")
-            return
+            return .identity
         }
-        let viewTransform = CGAffineTransform(translationX: -1, y: 1).scaledBy(x: 2.0 / view.bounds.size.width, y: -2.0 / view.bounds.size.height)
+        return CGAffineTransform(translationX: -1, y: 1).scaledBy(x: 2.0 / view.bounds.size.width, y: -2.0 / view.bounds.size.height)
+    }
+    
+    func drawDebugTriangle() {
+        let viewTransform = self.viewTransform
         let fillColor = stack[stack.count-1].fillColor
         let instance = Instance(transform: self.ctm.concatenating(viewTransform), fillColor: fillColor)
         instances.append(instance)
