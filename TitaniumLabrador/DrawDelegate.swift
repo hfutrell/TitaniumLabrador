@@ -123,7 +123,7 @@ extension DrawDelegate: MTKViewDelegate {
         
         let finalTransform = self.transform.concatenating(viewTransform)
         
-        let matrixData: [Float] = finalTransform.formattedForMetal
+        let matrixData: [Float] = finalTransform.formattedForMetal + finalTransform.translatedBy(x: 10, y: 1).formattedForMetal
 
         let positionBuffer = posData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
             device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
@@ -170,9 +170,9 @@ extension DrawDelegate: MTKViewDelegate {
         }
             
         renderEncoder.setRenderPipelineState(renderPipelineState)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 2)
         renderEncoder.endEncoding()
-        
+                
         guard let currentDrawable = view.currentDrawable else {
             assertionFailure("could nto get drawable")
             return
