@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import MetalKit
 
-let points = [CGPoint(x: 100, y: 0), CGPoint(x: 0, y: 75), CGPoint(x: 200, y: 100)]
+let points = [CGPoint(x: 0, y: 100), CGPoint(x: 0, y: 0), CGPoint(x: 100, y: 100), CGPoint(x: 100, y: 0)]
 
 let programSource = """
 
@@ -50,16 +50,12 @@ protocol TLContext {
     func restoreGState()
     func setFillColor(_ color: CGColor)
     func flush()
-    
-    func drawDebugTriangle()
+    func addRect(_ rect: CGRect)
+    func fillPath(using: CGPathFillRule)
 }
 
 extension CGContext: TLContext {
-    func drawDebugTriangle() {
-        addLines(between: points)
-        closePath()
-        strokePath()
-    }
+
 }
 
 extension CGAffineTransform {
@@ -85,11 +81,20 @@ class TLMetalContext {
         var fillColor: [Float]
     }
     weak var view: MTKView? = nil
+    private var viewTransform: CGAffineTransform {
+        guard let view = self.view else {
+            assertionFailure("view is not set to get view transform")
+            return .identity
+        }
+        return CGAffineTransform(translationX: -1, y: 1).scaledBy(x: 2.0 / view.bounds.size.width, y: -2.0 / view.bounds.size.height)
+    }
     private var instances: [Instance] = []
     private var stack: [StackEntry] = [StackEntry()]
+    private var rectangles: [CGRect] = []
     private func resetState() {
         instances = []
         stack = [StackEntry()]
+        rectangles = []
     }
     init() {
         self.resetState()
@@ -149,38 +154,42 @@ class TLMetalContext {
             $0.transform.formattedForMetal
         }
 
-        let positionBuffer = posData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
-            device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
-        }
-                
-        let colorBuffer = colData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
-            device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
-        }
+        if self.instances.isEmpty == false {
         
-        let matrixBuffer = matrixData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
-            device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
-        }
+            let positionBuffer = posData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
+                device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
+            }
+                    
+            let colorBuffer = colData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
+                device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
+            }
+            
+            let matrixBuffer = matrixData.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) in
+                device.makeBuffer(bytes: buffer.baseAddress!, length: buffer.count, options: [])
+            }
 
-        renderEncoder.setVertexBuffer(positionBuffer, offset: 0, index: 0)
-        renderEncoder.setVertexBuffer(colorBuffer, offset: 0, index: 1)
-        renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 2)
-        
-        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
-        renderPipelineDescriptor.vertexFunction = vertexFunction
-        renderPipelineDescriptor.fragmentFunction = fragmentFunction
-        renderPipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        
-        let renderPipelineState: MTLRenderPipelineState
+            renderEncoder.setVertexBuffer(positionBuffer, offset: 0, index: 0)
+            renderEncoder.setVertexBuffer(colorBuffer, offset: 0, index: 1)
+            renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 2)
             
-        do {
-            renderPipelineState = try device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
-        } catch {
-            assertionFailure("make render pipeline state failed with error")
-            return
+            let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
+            renderPipelineDescriptor.vertexFunction = vertexFunction
+            renderPipelineDescriptor.fragmentFunction = fragmentFunction
+            renderPipelineDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
+            
+            let renderPipelineState: MTLRenderPipelineState
+                
+            do {
+                renderPipelineState = try device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
+            } catch {
+                assertionFailure("make render pipeline state failed with error")
+                return
+            }
+                
+            renderEncoder.setRenderPipelineState(renderPipelineState)
+            renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: self.instances.count)
         }
             
-        renderEncoder.setRenderPipelineState(renderPipelineState)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: self.instances.count)
         renderEncoder.endEncoding()
                 
         guard let currentDrawable = view.currentDrawable else {
@@ -194,21 +203,20 @@ class TLMetalContext {
 
 extension TLMetalContext: TLContext {
     
-    private var viewTransform: CGAffineTransform {
-        guard let view = self.view else {
-            assertionFailure("view is not set to get view transform")
-            return .identity
-        }
-        return CGAffineTransform(translationX: -1, y: 1).scaledBy(x: 2.0 / view.bounds.size.width, y: -2.0 / view.bounds.size.height)
+    func addRect(_ rect: CGRect) {
+        rectangles.append(rect)
     }
     
-    func drawDebugTriangle() {
+    func fillPath(using: CGPathFillRule) {
         let viewTransform = self.viewTransform
         let fillColor = stack[stack.count-1].fillColor
-        let instance = Instance(transform: self.ctm.concatenating(viewTransform), fillColor: fillColor)
-        instances.append(instance)
+        let modelViewTransform = self.ctm.concatenating(viewTransform)
+        instances += rectangles.map { _ in
+            Instance(transform: modelViewTransform, fillColor: fillColor)
+        }
+        rectangles = []
     }
-    
+        
     func flush() {
         self.renderMetalCommands()
         self.resetState()

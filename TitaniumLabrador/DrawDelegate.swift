@@ -14,22 +14,27 @@ class DrawDelegate: NSObject {
     }()
     
     func draw<A: TLContext>(in context: A) {
+        let rect = CGRect(x: 0, y: 0, width: 20, height: 30)
+        
         context.concatenate(self.transform)
         
         context.setFillColor(UIColor.red.cgColor)
-        context.drawDebugTriangle()
-        
+        context.addRect(rect)
+        context.fillPath(using: .evenOdd)
+
         context.translateBy(x: 5, y: 5)
         context.rotate(by: 0.2)
         
         context.setFillColor(UIColor.orange.cgColor)
-        context.drawDebugTriangle()
-        
+        context.addRect(rect)
+        context.fillPath(using: .evenOdd)
+
         context.translateBy(x: 5, y: 5)
         context.rotate(by: 0.2)
         
         context.setFillColor(UIColor.blue.cgColor)
-        context.drawDebugTriangle()
+        context.addRect(rect)
+        context.fillPath(using: .evenOdd)
     }
     
     var transform: CGAffineTransform {
