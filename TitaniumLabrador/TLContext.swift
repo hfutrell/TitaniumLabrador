@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import MetalKit
 
-let points = [CGPoint(x: 0, y: 100), CGPoint(x: 0, y: 0), CGPoint(x: 100, y: 100), CGPoint(x: 100, y: 0)]
+let points = [CGPoint(x: 0, y: 1), CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 1), CGPoint(x: 1, y: 0)]
 
 let programSource = """
 
@@ -211,8 +211,10 @@ extension TLMetalContext: TLContext {
         let viewTransform = self.viewTransform
         let fillColor = stack[stack.count-1].fillColor
         let modelViewTransform = self.ctm.concatenating(viewTransform)
-        instances += rectangles.map { _ in
-            Instance(transform: modelViewTransform, fillColor: fillColor)
+        instances += rectangles.map {
+            var rectangleTransform = CGAffineTransform(translationX: $0.origin.x, y: $0.origin.y)
+            rectangleTransform = rectangleTransform.scaledBy(x: $0.size.width, y: $0.size.height)
+            return Instance(transform: rectangleTransform.concatenating(modelViewTransform), fillColor: fillColor)
         }
         rectangles = []
     }

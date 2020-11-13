@@ -49,6 +49,7 @@ class ViewController: UIViewController {
         coreGraphicsView.isOpaque = false
         coreGraphicsView.autoresizingMask = autoresizeMask
         coreGraphicsView.contentMode = .redraw
+        coreGraphicsView.alpha = 0.5
         self.view.addSubview(coreGraphicsView)
     }
 }
